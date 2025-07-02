@@ -168,3 +168,4 @@
 /home/vichu/Desktop/Project/DatingApp/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /home/vichu/Desktop/Project/DatingApp/bin/Debug/net9.0/Microsoft.IdentityModel.Protocols.dll
 /home/vichu/Desktop/Project/DatingApp/bin/Debug/net9.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/home/vichu/Desktop/Project/DatingApp/obj/Debug/net9.0/DatingApp.sourcelink.json

@@ -36,7 +36,7 @@ namespace DatingApp.Controllers
             return new UserDto
             {
                 UserName = User.userName,
-                Token=_service.CreateToken(User)
+                Token = _service.CreateToken(User)
             };
 
         }
@@ -57,7 +57,7 @@ namespace DatingApp.Controllers
             return new UserDto
             {
                 UserName = user.userName,
-                Token=_service.CreateToken(user)
+                Token = _service.CreateToken(user)
             };
 
         }
