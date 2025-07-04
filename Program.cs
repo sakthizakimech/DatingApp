@@ -40,4 +40,18 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200","https://localhost:4200"));
 app.MapControllers();
+using var scope = app.Services.CreateScope();
+var service = scope.ServiceProvider;
+try
+{
+    var context = service.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    await SeedData.SeedUsers(context);
+}
+catch (Exception e)
+{
+
+    var logger = service.GetRequiredService<ILogger<Program>>();
+    logger.LogError(e.Message);
+}
 app.Run();

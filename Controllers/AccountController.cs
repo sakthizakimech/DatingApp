@@ -5,6 +5,7 @@ using DatingApp.DataContext;
 using DatingApp.Dtos;
 using DatingApp.Entities;
 using DatingApp.interfaces;
+using DatingApp.ServiceExtentions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace DatingApp.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto info)
         {
-            var User = await _context.users.FirstOrDefaultAsync(x => x.userName == info.UserName.ToLower());
+            var User = await _context.users.FirstOrDefaultAsync(x => x.Email == info.Email);
             if (User == null) return Unauthorized("Invalid User Name");
             using var hasher = new HMACSHA512(User.PasswordSalt);
             var HashedPassword = hasher.ComputeHash(Encoding.UTF8.GetBytes(info.Password));
@@ -33,37 +34,34 @@ namespace DatingApp.Controllers
                 if (HashedPassword[i] != User.PasswordHash[i])
                     return Unauthorized("Invalid Password");
             }
-            return new UserDto
-            {
-                UserName = User.userName,
-                Token = _service.CreateToken(User)
-            };
+            return User.ToDto(_service);
 
         }
         [HttpPost("Register")]
         public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto info)
         {
-            if (await isExist(info.UserName)) return BadRequest("User Name is Alread Taken");
-            using var hasher = new HMACSHA512();
+            if (await EmailExists(info.Email)) return BadRequest("Email taken");
 
-            var user = new AppUser
-            {
-                userName = info.UserName,
-                PasswordHash = hasher.ComputeHash(Encoding.UTF8.GetBytes(info.Password)),
-                PasswordSalt = hasher.Key
-            };
-            _context.users.Add(user);
-            await _context.SaveChangesAsync();
-            return new UserDto
-            {
-                UserName = user.userName,
-                Token = _service.CreateToken(user)
-            };
+        using var hmac = new HMACSHA512();
+
+        var user = new AppUser
+        {
+            DisplayName = info.DisplayName,
+            Email = info.Email,
+            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(info.Password)),
+            PasswordSalt = hmac.Key
+        };
+
+        _context.users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return user.ToDto(_service);
+            
 
         }
-        private async Task<bool> isExist(string userName)
+        private async Task<bool> EmailExists(string Mailid)
         {
-            return await _context.users.AnyAsync(x => x.userName.ToLower() == userName);
+            return await _context.users.AnyAsync(x => x.Email.ToLower() == Mailid);
         }
     }
 }
